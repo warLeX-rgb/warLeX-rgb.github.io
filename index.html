@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Discord Token Info</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+</head>
+
+<body>
+
+    <form>
+
+        <label for="token">Discord Token:</label>
+
+        <input type="text" id="token" name="token">
+
+        <button type="button" onclick="getInfo()">Get Info</button>
+
+    </form>
+
+    <div id="info"></div>
+
+    <script>
+
+        let token;
+
+        async function getInfo() {
+
+            token = document.getElementById("token").value;
+
+            const headers = {
+
+                Authorization: `Bot ${token}`
+
+            };
+
+            try {
+
+                const guildResponse = await axios.get("https://discord.com/api/users/@me/guilds", { headers });
+
+                const guildOptions = ["<option value=''>Please select a guild...</option>"]
+
+                                      .concat(guildResponse.data.map(guild => `<option value="${guild.id}">${guild.name}</option>`))
+
+                                      .join("");
+
+                document.getElementById("info").innerHTML = `<select id="guildSelect" onchange="getChannels()">${guildOptions}</select><br>
+
+                <div id="channelList"></div>`;
+
+            } catch (error) {
+
+                document.getElementById("info").innerHTML = "Invalid token or an error occured.";
+
+            }
+
+        }
+
+        async function getChannels() {
+
+            const guildId = document.getElementById("guildSelect").value;
+
+            if(!guildId) return;
+
+            const headers = {
+
+                Authorization: `Bot ${token}`
+
+            };
+
+            try {
+
+                const channelsResponse = await axios.get(`https://discord.com/api/guilds/${guildId}/channels`, { headers });
+
+                const voiceChannels = channelsResponse.data
+
+                                      .filter(channel => channel.type === "voice")
+
+                                      .map(channel => `<li>${channel.name}</li>`)
+
+                                      .join("");
+
+                const textChannels = channelsResponse.data
+
+                                      .filter(channel => channel.type === "text")
+
+                                      .map(channel => `<li>${channel.name}</li>`)
+
+                                      .join("");
+
+                document.getElementById("channelList").innerHTML = `<div>Voice Channels: <ul>${voiceChannels}</ul></div>
+
+                <div>Text Channels: <ul>${textChannels}</ul></div>`;
+
+            } catch (error) {
+
+                document.getElementById("channelList").innerHTML = "An error occured.";
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>
+
