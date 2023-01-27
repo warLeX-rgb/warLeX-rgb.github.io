@@ -74,7 +74,7 @@
 
             try {
 
-                const channelsResponse = await axios.get(`https://discord.com/api/guilds/${guildId}/channels`, { headers });
+                const channelsResponse = await axios.get(`https://cors-anywhere.herokuapp.com/https://discord.com/api/guilds/${guildId}/channels`, { headers });
 
                 const voiceChannels = channelsResponse.data
 
